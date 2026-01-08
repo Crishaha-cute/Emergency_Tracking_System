@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  var map = L.map('map').setView([9.0820, 126.3061], 12);
+  var markers = [];
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  function addMultipleMarkers(markersData) {
+      clearMarkers();
+      if (markersData.length === 0) return;
+
+      var group = new L.featureGroup();
+      markersData.forEach(function(data) {
+          var markerColor = data.color || 'blue';
+          var markerHtmlIcon = L.divIcon({
+              html: `<div style="background-color: ${markerColor}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">📍</div>`,
+              className: 'custom-marker'
+          });
+
+          var marker = L.marker([data.lat, data.lng], { icon: markerHtmlIcon })
+              .bindPopup(`<b>${data.title}</b><br/>${data.description || ''}`);
+          group.addLayer(marker);
+          markers.push(marker);
+      });
+
+      map.addLayer(group);
+      map.fitBounds(group.getBounds().pad(0.1));
+  }
+
+  function clearMarkers() {
+      markers.forEach(function(marker) {
+          map.removeLayer(marker);
+      });
+      markers = [];
+  }
+</script>
+</body>
+</html>
